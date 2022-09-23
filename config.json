@@ -1,0 +1,12 @@
+{
+    "Name": "test name",
+    "web": {
+        "Port": 2222,
+        "_Port": "ip port",
+        "IP": "localhost",
+        "_IP": "remote ip address"
+    },
+    "Bool": false,
+    "_Bool": "boolean value",
+    "for_expert": true
+}
