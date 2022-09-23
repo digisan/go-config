@@ -106,7 +106,7 @@ func Init(prompt bool, fPaths ...string) {
 			break
 		}
 	}
-	lk.FailOnErrWhen(err != nil || data == nil, "%v", fmt.Errorf("failed to load configure file"))
+	lk.FailP1OnErrWhen(err != nil || data == nil, "%v", fmt.Errorf("failed to load configure file"))
 
 	mCfg, err = jt.Flatten(data)
 	lk.FailOnErr("%v", err)
