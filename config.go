@@ -93,16 +93,15 @@ func getPrompts(m map[string]any) (fields, prompts []string) {
 	return
 }
 
-func Init(prompt bool, fPaths ...string) {
+func Init(prompt bool, fPaths ...string) (err error) {
 
 	var (
 		data []byte
-		err  error
 	)
 
 	for _, fpath := range fPaths {
 		if bytes, err := os.ReadFile(fpath); err == nil {
-			data, fPathCfg = bytes, fpath
+			data, fPathCfg, jsCfg = bytes, fpath, string(bytes)
 			break
 		}
 	}

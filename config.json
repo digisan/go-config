@@ -1,10 +1,15 @@
 {
     "Name": "test name",
     "web": {
-        "Port": 2222,
+        "Port": 9999,
         "_Port": "ip port",
         "IP": "localhost",
-        "_IP": "remote ip address"
+        "_IP": "remote ip address",
+        "Array": [
+            88,
+            34            
+        ],
+        "_Array.0": "this is an array test description"
     },
     "Bool": false,
     "_Bool": "boolean value",
