@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 
 	. "github.com/digisan/go-generics/v2"
 	lk "github.com/digisan/logkit"
@@ -28,9 +29,15 @@ func Show() {
 	fmt.Println()
 }
 
-// only for primitive value
-func Val[T any](field string) T {
+func path(paths ...any) string {
+	sp := FilterMap(paths, nil, func(i int, e any) string { return fmt.Sprint(e) })
+	return strings.Join(sp, ".")
+}
 
+// only for primitive value
+func Val[T any](paths ...any) T {
+
+	field := path(paths...)
 	valAny, ok := mCfg[field]
 	lk.FailP1OnErrWhen(!ok, "%v", fmt.Errorf("[%v] is NOT in file [%s]", field, fPathCfg))
 
@@ -73,10 +80,11 @@ func Val[T any](field string) T {
 	return ret.(T)
 }
 
-func ValArr[T any](field string) []T {
+func ValArr[T any](paths ...any) []T {
 
 	lk.FailP1OnErrWhen(len(jsCfg) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
 
+	field := path(paths...)
 	if r := gjson.Get(jsCfg, field); r.IsArray() {
 		ret := FilterMap(r.Array(), nil, func(i int, e gjson.Result) any {
 			switch fmt.Sprintf("%T", new(T)) {
@@ -133,10 +141,11 @@ func ValArr[T any](field string) []T {
 	return nil
 }
 
-func ValObj(field string) map[string]any {
+func ValObj(paths ...any) map[string]any {
 
 	lk.FailP1OnErrWhen(len(jsCfg) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
 
+	field := path(paths...)
 	if r := gjson.Get(jsCfg, field); r.IsObject() {
 		rt := make(map[string]any)
 		lk.FailP1OnErr("%v", json.Unmarshal([]byte(r.Raw), &rt))
@@ -147,6 +156,7 @@ func ValObj(field string) map[string]any {
 	return nil
 }
 
-func CntArr[T any](field string) int {
+func CntArr[T any](paths ...any) int {
+	field := path(paths...)
 	return len(ValArr[T](field))
 }
