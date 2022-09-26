@@ -1,17 +1,43 @@
 {
     "Name": "test name",
     "web": {
-        "Port": 9999,
+        "Port": 7777,
         "_Port": "ip port",
         "IP": "localhost",
         "_IP": "remote ip address",
         "Array": [
-            88,
-            34            
+            33,
+            34
         ],
         "_Array.0": "this is an array test description"
     },
-    "Bool": false,
+    "Bool": true,
     "_Bool": "boolean value",
-    "for_expert": true
+    "expert": {
+        "field1": 123,
+        "field2": true,
+        "field3": null,
+        "field4": "string value"
+    },
+    "expert-array": [
+        {
+            "field1": 123,
+            "field2": true,
+            "field3": null,
+            "field4": "string value"
+        },
+        {
+            "field1": 567,
+            "field2": false,
+            "field3": null,
+            "field4": "string value 1"
+        }
+    ],
+    "simple-array": [
+        1,
+        2,
+        3,
+        4,
+        5
+    ]
 }

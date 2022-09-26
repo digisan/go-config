@@ -2,4 +2,4 @@
 
 set -e
 
-rm ./cli/cli
+rm -rf ./cli/cli

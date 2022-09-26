@@ -15,7 +15,10 @@ func main() {
 	fmt.Println("IP", cfg.Val[string]("web.IP"))
 	fmt.Println("Port", cfg.Val[int16]("web.Port"))
 	fmt.Println("array", cfg.ValArr[int8]("web.Array"))
+	fmt.Println("object(expert-field2)", cfg.ValObj("expert")["field2"])
+	fmt.Println("array count (expert)", cfg.CntArr[any]("expert-array"))
+	fmt.Println("array count (simple)", cfg.CntArr[int]("simple-array"))
 
-	fmt.Println("Not Existing", cfg.Val[string]("Myname"))
-	fmt.Println(cfg.Val[int]("Port"))
+	// fmt.Println("Not Existing", cfg.Val[string]("Myname"))
+	// fmt.Println(cfg.Val[int]("Port"))
 }
