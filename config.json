@@ -6,12 +6,12 @@
         "IP": "localhost",
         "_IP": "remote ip address",
         "Array": [
-            33,
+            99,
             34
         ],
         "_Array.0": "this is an array test description"
     },
-    "Bool": true,
+    "Bool": false,
     "_Bool": "boolean value",
     "expert": {
         "field1": 123,

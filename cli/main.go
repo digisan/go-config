@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	cfg.Init(true, "../config1.json", "../config.json")
+	cfg.Init("test", true, "../config1.json", "../config.json")
+	cfg.Use("test")
 
 	cfg.Show()
 

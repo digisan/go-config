@@ -93,7 +93,12 @@ func getPrompts(m map[string]any) (fields, prompts []string) {
 	return
 }
 
-func Init(prompt bool, fPaths ...string) (err error) {
+func Init(id string, prompt bool, fPaths ...string) (err error) {
+	mtx.Lock()
+	defer mtx.Unlock()
+
+	MapCfg[id] = &Cfg{path: "", js: "", data: make(map[string]any)}
+	pCfg = MapCfg[id]
 
 	var (
 		data []byte
@@ -101,13 +106,13 @@ func Init(prompt bool, fPaths ...string) (err error) {
 
 	for _, fpath := range fPaths {
 		if bytes, err := os.ReadFile(fpath); err == nil {
-			data, fPathCfg, jsCfg = bytes, fpath, string(bytes)
+			data, pCfg.path, pCfg.js = bytes, fpath, string(bytes)
 			break
 		}
 	}
 	lk.FailP1OnErrWhen(err != nil || data == nil, "%v from %v", fmt.Errorf("failed to load configure file"), fPaths)
 
-	mCfg, err = jt.Flatten(data)
+	pCfg.data, err = jt.Flatten(data)
 	lk.FailOnErr("%v", err)
 
 	if !prompt {
@@ -116,7 +121,7 @@ func Init(prompt bool, fPaths ...string) (err error) {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	fields, prompts := getPrompts(mCfg)
+	fields, prompts := getPrompts(pCfg.data)
 
 	// if no prompt fields, return config json map
 	if len(prompts) == 0 {
@@ -132,8 +137,8 @@ func Init(prompt bool, fPaths ...string) (err error) {
 	// 	fmt.Printf("%v(%T) - %v(%T)\n", k, k, v, v)
 	// }
 
-	if m, ok := confirm(filepath.Base(fPathCfg), mCfg, first); ok {
-		mCfg = m
+	if m, ok := confirm(filepath.Base(pCfg.path), pCfg.data, first); ok {
+		pCfg.data = m
 		return
 	}
 
@@ -141,20 +146,20 @@ RE_INPUT_ALL:
 	fmt.Printf(`
 ----------------------------------------------------------------
 input value for [%s]. if <ENTER>, default value applies
-----------------------------------------------------------------`, filepath.Base(fPathCfg))
+----------------------------------------------------------------`, filepath.Base(pCfg.path))
 	fmt.Println()
 
 	for i, f := range prompts {
 		// f is prompt name (e.g. _IP)
 
-		field := fields[i]         // real value field name
-		var fVal any = mCfg[field] // real field value
+		field := fields[i]              // real value field name
+		var fVal any = pCfg.data[field] // real field value
 
 		switch fVal.(type) {
 		case int, int64, float32, float64, bool:
-			fmt.Printf("--> %-20v\t\tvalue: %v\t\tnew value: ", mCfg[f], fVal)
+			fmt.Printf("--> %-20v\t\tvalue: %v\t\tnew value: ", pCfg.data[f], fVal)
 		default:
-			fmt.Printf("--> %-20v\t\tvalue: '%v'\t\tnew value: ", mCfg[f], fVal)
+			fmt.Printf("--> %-20v\t\tvalue: '%v'\t\tnew value: ", pCfg.data[f], fVal)
 		}
 
 	RE_INPUT:
@@ -169,35 +174,35 @@ input value for [%s]. if <ENTER>, default value applies
 
 		switch fVal.(type) {
 		case int, int64, float32, float64:
-			if mCfg[field], err = strconv.ParseInt(iVal, 10, 64); err != nil {
-				if mCfg[field], err = strconv.ParseFloat(iVal, 64); err != nil {
+			if pCfg.data[field], err = strconv.ParseInt(iVal, 10, 64); err != nil {
+				if pCfg.data[field], err = strconv.ParseFloat(iVal, 64); err != nil {
 					fmt.Printf("[%v] is invalid, MUST be number, try again\n", iVal)
 					goto RE_INPUT
 				}
 			}
 		case bool:
-			if mCfg[field], err = strconv.ParseBool(iVal); err != nil {
+			if pCfg.data[field], err = strconv.ParseBool(iVal); err != nil {
 				fmt.Printf("[%v] is invalid, MUST be bool, try again\n", iVal)
 				goto RE_INPUT
 			}
 		default:
-			mCfg[field] = iVal
+			pCfg.data[field] = iVal
 		}
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	if m, ok := confirm(filepath.Base(fPathCfg), mCfg, final); ok {
+	if m, ok := confirm(filepath.Base(pCfg.path), pCfg.data, final); ok {
 		if inputJudge("Overwrite Original File?") {
 			ori := string(data)
 			for k, v := range m {
 				ori, err = sjson.Set(ori, k, v)
 				lk.FailOnErr("%v", err)
 			}
-			lk.FailOnErr("%v", os.WriteFile(fPathCfg, []byte(ori), os.ModePerm))
+			lk.FailOnErr("%v", os.WriteFile(pCfg.path, []byte(ori), os.ModePerm))
 		}
-		mCfg = m
+		pCfg.data = m
 		return
 	}
 	fmt.Println("INPUT AGAIN PLEASE:")

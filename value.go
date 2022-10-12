@@ -5,23 +5,41 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 
 	. "github.com/digisan/go-generics/v2"
 	lk "github.com/digisan/logkit"
 	"github.com/tidwall/gjson"
 )
 
+type Cfg struct {
+	path string
+	js   string
+	data map[string]any
+}
+
 var (
-	fPathCfg = ""
-	jsCfg    = ""
-	mCfg     = make(map[string]any)
+	mtx    = sync.Mutex{}
+	MapCfg = make(map[string]*Cfg)
+	pCfg   *Cfg
 )
+
+func Use(id string) error {
+	mtx.Lock()
+	defer mtx.Unlock()
+	p, ok := MapCfg[id]
+	if !ok {
+		return fmt.Errorf("[%v] is uninitialized, do 'Init' before using it", id)
+	}
+	pCfg = p
+	return nil
+}
 
 func Show() {
 	fmt.Println()
 	r1 := regexp.MustCompile(`^_\w+`)
 	r2 := regexp.MustCompile(`\._\w+`)
-	for k, v := range mCfg {
+	for k, v := range pCfg.data {
 		if !(r1.MatchString(k) || r2.MatchString(k)) {
 			fmt.Printf("%-16v: %v\n", k, v)
 		}
@@ -38,8 +56,8 @@ func path(paths ...any) string {
 func Val[T any](paths ...any) T {
 
 	field := path(paths...)
-	valAny, ok := mCfg[field]
-	lk.FailP1OnErrWhen(!ok, "%v", fmt.Errorf("[%v] is NOT in file [%s]", field, fPathCfg))
+	valAny, ok := pCfg.data[field]
+	lk.FailP1OnErrWhen(!ok, "%v", fmt.Errorf("[%v] is NOT in file [%s]", field, pCfg.path))
 
 	t := fmt.Sprintf("%T", new(T))
 	var ret any
@@ -82,10 +100,10 @@ func Val[T any](paths ...any) T {
 
 func ValArr[T any](paths ...any) []T {
 
-	lk.FailP1OnErrWhen(len(jsCfg) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
+	lk.FailP1OnErrWhen(len(pCfg.js) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
 
 	field := path(paths...)
-	if r := gjson.Get(jsCfg, field); r.IsArray() {
+	if r := gjson.Get(pCfg.js, field); r.IsArray() {
 		ret := FilterMap(r.Array(), nil, func(i int, e gjson.Result) any {
 			switch fmt.Sprintf("%T", new(T)) {
 
@@ -143,10 +161,10 @@ func ValArr[T any](paths ...any) []T {
 
 func ValObj(paths ...any) map[string]any {
 
-	lk.FailP1OnErrWhen(len(jsCfg) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
+	lk.FailP1OnErrWhen(len(pCfg.js) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
 
 	field := path(paths...)
-	if r := gjson.Get(jsCfg, field); r.IsObject() {
+	if r := gjson.Get(pCfg.js, field); r.IsObject() {
 		rt := make(map[string]any)
 		lk.FailP1OnErr("%v", json.Unmarshal([]byte(r.Raw), &rt))
 		return rt
