@@ -161,7 +161,7 @@ func ValArr[T any](paths ...any) []T {
 
 func ValObj(paths ...any) map[string]any {
 
-	lk.FailP1OnErrWhen(len(pCfg.js) == 0, "%v", fmt.Errorf("config data is empty, Must Init"))
+	lk.FailP1OnErrWhen(len(pCfg.js) == 0, "%v", fmt.Errorf("config data is empty, Must do 'Init'"))
 
 	field := path(paths...)
 	if r := gjson.Get(pCfg.js, field); r.IsObject() {
