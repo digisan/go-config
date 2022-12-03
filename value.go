@@ -152,7 +152,7 @@ func ValArr[T any](paths ...any) []T {
 				return nil
 			}
 		})
-		return SlcCvt[T](ret)
+		return AnysToTypes[T](ret)
 	}
 
 	lk.FailP1OnErr("%v", fmt.Errorf("[%s] is not array type", field))
