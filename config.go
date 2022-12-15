@@ -2,6 +2,8 @@ package goconfig
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,21 +11,22 @@ import (
 	"strconv"
 	"strings"
 
-	// . "github.com/digisan/go-generics/v2"
+	"github.com/BurntSushi/toml"
+	ff "github.com/digisan/fileflatter"
+	. "github.com/digisan/go-generics/v2"
 	"github.com/digisan/gotk/strs"
-	jt "github.com/digisan/json-tool"
 	lk "github.com/digisan/logkit"
 	"github.com/tidwall/sjson"
 )
 
-type confirmType uint8
+type confirmOrder uint8
 
 const (
-	first confirmType = 1
-	final confirmType = 2
+	first confirmOrder = 1
+	final confirmOrder = 2
 )
 
-func (ct confirmType) String() string {
+func (ct confirmOrder) String() string {
 	switch ct {
 	case first:
 		return "default"
@@ -48,31 +51,45 @@ func inputJudge(prompt string) bool {
 	}
 }
 
-// m: original config map on 'first'
-//
-//	modified config map on 'final'
-func confirm(cfgName string, m map[string]any, ct confirmType) (map[string]any, bool) {
+// m: original config map on 'first'; modified config map on 'final'
+// return flat-map is without prompt fields
+func confirm(cfgName, cfgType string, m map[string]any, co confirmOrder) (map[string]any, bool) {
 	fmt.Printf(`
 --------------------------------------------
     --- %s [%s] values ---        
---------------------------------------------`, ct, cfgName)
+--------------------------------------------`, co, cfgName)
 	fmt.Println()
 
-	cfg := jt.Composite(m, func(path string, value any) (p string, v any, raw bool) {
-		p, v, raw = path, value, false                                    // if return 'raw' is true, it must be <string> type
-		if strings.HasPrefix(path, "_") || strings.Contains(path, "._") { // && unicode.IsUpper(rune(path[0])) {
+	mn := MapFlatToNested(m, func(path string, value any) (p string, v any) {
+		p, v = path, value
+		if strings.HasPrefix(path, "_") || strings.Contains(path, "._") {
 			p = ""
 		}
 		return
 	})
-	fmt.Println(jt.FmtStr(cfg, "    "))
 
-	// trimmed config map
-	m, err := jt.Flatten([]byte(cfg))
-	lk.FailOnErr("%v", err)
+	// preview content ...
+	switch cfgType {
+
+	case "json":
+		jsBytes, err := json.MarshalIndent(mn, "", "    ")
+		lk.FailOnErr("%v", err)
+		fmt.Println(string(jsBytes))
+
+	case "toml":
+		// "github.com/BurntSushi/toml"
+		buf := new(bytes.Buffer)
+		lk.FailOnErr("%v", toml.NewEncoder(buf).Encode(mn))
+		fmt.Println(buf.String())
+
+	default:
+		panic("TODO: add more type to confirm preview")
+	}
+
+	//////////////////////////////////////
 
 	if inputJudge("confirm?") {
-		return m, true
+		return MapNestedToFlat(mn), true
 	}
 	return nil, false
 }
@@ -97,8 +114,8 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 	mtx.Lock()
 	defer mtx.Unlock()
 
-	MapCfg[id] = &Cfg{path: "", js: "", data: make(map[string]any)}
-	pCfg = MapCfg[id]
+	MapCfg[id] = &Cfg{path: "", str: "", fm: make(map[string]any)}
+	cfg = MapCfg[id]
 
 	var (
 		data []byte
@@ -106,7 +123,7 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 
 	for _, fpath := range fPaths {
 		if bytes, err := os.ReadFile(fpath); err == nil {
-			data, pCfg.path, pCfg.js = bytes, fpath, string(bytes)
+			data, cfg.path, cfg.str = bytes, fpath, string(bytes)
 			break
 		}
 	}
@@ -114,7 +131,8 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 		return fmt.Errorf("failed to load configure file from [%v]", fPaths)
 	}
 
-	pCfg.data, err = jt.Flatten(data)
+	//
+	cfg.fm, err = ff.FlatContent(data)
 	lk.FailOnErr("%v", err)
 
 	if !prompt {
@@ -123,24 +141,25 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	fields, prompts := getPrompts(pCfg.data)
+	fields, prompts := getPrompts(cfg.fm)
 
-	// if no prompt fields, return config json map
+	// if no prompt fields, return
 	if len(prompts) == 0 {
 		return
 	}
 
 	lk.Log("prompts: %v", prompts)
 
-	//
+	// original config file type: "json", "toml", etc.
+	cfg.typ = ff.TxtType(cfg.str)
+
 	// check config value & type
-	//
-	// for k, v := range mCfg {
+	// for k, v := range cfg.fm {
 	// 	fmt.Printf("%v(%T) - %v(%T)\n", k, k, v, v)
 	// }
 
-	if m, ok := confirm(filepath.Base(pCfg.path), pCfg.data, first); ok {
-		pCfg.data = m
+	if m, ok := confirm(filepath.Base(cfg.path), cfg.typ, cfg.fm, first); ok {
+		cfg.fm = m
 		return
 	}
 
@@ -148,20 +167,20 @@ RE_INPUT_ALL:
 	fmt.Printf(`
 ----------------------------------------------------------------
 input value for [%s]. if <ENTER>, default value applies
-----------------------------------------------------------------`, filepath.Base(pCfg.path))
+----------------------------------------------------------------`, filepath.Base(cfg.path))
 	fmt.Println()
 
 	for i, f := range prompts {
 		// f is prompt name (e.g. _IP)
 
-		field := fields[i]              // real value field name
-		var fVal any = pCfg.data[field] // real field value
+		field := fields[i]           // real value field name
+		var fVal any = cfg.fm[field] // real field value
 
 		switch fVal.(type) {
 		case int, int64, float32, float64, bool:
-			fmt.Printf("--> %-20v\t\tvalue: %v\t\tnew value: ", pCfg.data[f], fVal)
+			fmt.Printf("--> %-20v\t\tvalue: %v\t\tnew value: ", cfg.fm[f], fVal)
 		default:
-			fmt.Printf("--> %-20v\t\tvalue: '%v'\t\tnew value: ", pCfg.data[f], fVal)
+			fmt.Printf("--> %-20v\t\tvalue: '%v'\t\tnew value: ", cfg.fm[f], fVal)
 		}
 
 	RE_INPUT:
@@ -176,35 +195,61 @@ input value for [%s]. if <ENTER>, default value applies
 
 		switch fVal.(type) {
 		case int, int64, float32, float64:
-			if pCfg.data[field], err = strconv.ParseInt(iVal, 10, 64); err != nil {
-				if pCfg.data[field], err = strconv.ParseFloat(iVal, 64); err != nil {
+			if cfg.fm[field], err = strconv.ParseInt(iVal, 10, 64); err != nil {
+				if cfg.fm[field], err = strconv.ParseFloat(iVal, 64); err != nil {
 					fmt.Printf("[%v] is invalid, MUST be number, try again\n", iVal)
 					goto RE_INPUT
 				}
 			}
 		case bool:
-			if pCfg.data[field], err = strconv.ParseBool(iVal); err != nil {
+			if cfg.fm[field], err = strconv.ParseBool(iVal); err != nil {
 				fmt.Printf("[%v] is invalid, MUST be bool, try again\n", iVal)
 				goto RE_INPUT
 			}
 		default:
-			pCfg.data[field] = iVal
+			cfg.fm[field] = iVal
 		}
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	if m, ok := confirm(filepath.Base(pCfg.path), pCfg.data, final); ok {
-		if inputJudge("Overwrite Original File?") {
+	if fm, ok := confirm(filepath.Base(cfg.path), cfg.typ, cfg.fm, final); ok {
+		if inputJudge("Overwrite Original File? (format & order may change & comments will disappear!)") {
+
+			// fetch original file content
 			ori := string(data)
-			for k, v := range m {
-				ori, err = sjson.Set(ori, k, v)
-				lk.FailOnErr("%v", err)
+
+			// original flat map, which has prompt fields
+			fmOri, err := ff.FlatContent(ori)
+			lk.FailOnErr("%v", err)
+
+			switch cfg.typ {
+
+			case "json":
+				// modify original
+				for k, v := range fm {
+					ori, err = sjson.Set(ori, k, v)
+					lk.FailOnErr("%v", err)
+				}
+				lk.FailOnErr("%v", os.WriteFile(cfg.path, []byte(ori), os.ModePerm))
+
+			case "toml":
+				// modify original
+				for k, v := range fm {
+					fmOri[k] = v
+				}
+
+				// "github.com/BurntSushi/toml"
+				buf := new(bytes.Buffer)
+				lk.FailOnErr("%v", toml.NewEncoder(buf).Encode(MapFlatToNested(fmOri, nil)))
+				lk.FailOnErr("%v", os.WriteFile(cfg.path, buf.Bytes(), os.ModePerm))
+
+			default:
+				panic("TODO: add more type to confirm preview")
 			}
-			lk.FailOnErr("%v", os.WriteFile(pCfg.path, []byte(ori), os.ModePerm))
 		}
-		pCfg.data = m
+		cfg.fm = fm
 		return
 	}
 	fmt.Println("INPUT AGAIN PLEASE:")
