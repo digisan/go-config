@@ -8,6 +8,23 @@ import (
 )
 
 func main() {
+
+	cfg.Init("toml1", true, "../data/config1.toml")
+	cfg.Use("toml1")
+	cfg.Show()
+
+	fmt.Println("Split.Enabled:", cfg.Bool("Split.Enabled"))
+	fmt.Println("Split.Schema.0:", cfg.Str("Split.Schema.0"))
+	fmt.Println("Split.Schema:", cfg.Strs("Split.Schema"))
+	fmt.Println("Split.Schema:", cfg.ValArr[string]("Split.Schema"))
+
+	fmt.Println("Trim:", cfg.Object("Trim"))
+
+	fmt.Println("Merge:", cfg.Objects("Merge"))
+	fmt.Println("Merge Count:", cfg.CntObjects("Merge"))
+
+	fmt.Println("--------------------------------------------------------------------------")
+
 	cfg.Init("toml", true, "../data/config.toml")
 	cfg.Use("toml")
 	cfg.Show()
@@ -17,26 +34,29 @@ func main() {
 	fmt.Println("ports:", cfg.Val[int64]("database.ports.0"))
 	fmt.Println("array:", cfg.ValArr[int]("database.ports"))
 	fmt.Println("array:", cfg.ValArr[int8]("clients.data.1"))
-	fmt.Println("object:", cfg.ValObj("servers.alpha"))
-	fmt.Println("object:", cfg.ValObj("servers"))
+	fmt.Println("servers.alpha:", cfg.Object("servers", "alpha"))
+	fmt.Println("servers:", cfg.Object("servers"))
 	fmt.Println("time:", cfg.Val[time.Time]("owner.dob"))
 
-	// fmt.Println("array", cfg.ValArr[any]("clients.data")) // error !!!
+	// // fmt.Println("array", cfg.ValArr[any]("clients.data")) // error@ [[], []] !!!
 
-	fmt.Println("------------------------------------------------------")
+	fmt.Println("--------------------------------------------------------------------------")
 
-	// cfg.Init("json", true, "../data/config.json")
-	// cfg.Use("json")
-	// cfg.Show()
+	cfg.Init("json", true, "../data/config.json")
+	cfg.Use("json")
+	cfg.Show()
 
-	// fmt.Println("Bool", cfg.Val[bool]("Bool"))
-	// fmt.Println("IP", cfg.Val[string]("web", "IP"))
-	// fmt.Println("Port", cfg.Val[int16]("web.Port"))
-	// fmt.Println("element", cfg.Val[int8]("web.Array", 1))
-	// fmt.Println("array", cfg.ValArr[int8]("web.Array"))
-	// fmt.Println("object(expert-field2)", cfg.ValObj("expert")["field2"])
-	// fmt.Println("array count (expert)", cfg.CntArr[any]("expert-array"))
-	// fmt.Println("array count (simple)", cfg.CntArr[int]("simple-array"))
-	// fmt.Println("array", cfg.ValArr[string]("string-array"))
-	// fmt.Println("Not Existing", cfg.Val[string]("Myname"))
+	fmt.Println("Bool", cfg.Val[bool]("Bool"))
+	fmt.Println("IP", cfg.Val[string]("web", "IP"))
+	fmt.Println("Port", cfg.Val[int16]("web.Port"))
+	fmt.Println("element", cfg.Val[int8]("web.Array", 1))
+	fmt.Println("array", cfg.ValArr[int8]("web.Array"))
+	fmt.Println("object(expert-field2)", cfg.Object("expert")["field2"])
+	fmt.Println("array (expert)", cfg.Objects("expert-array"))
+	fmt.Println("array count (simple)", cfg.CntValArr[int]("simple-array"))
+	fmt.Println("array", cfg.ValArr[string]("string-array"))
+	fmt.Print("Not Existing: ")
+	fmt.Println(cfg.Val[string]("Myname"))
+
+	fmt.Println("--------------------------------------------------------------------------")
 }

@@ -124,6 +124,8 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 	for _, fpath := range fPaths {
 		if bytes, err := os.ReadFile(fpath); err == nil {
 			data, cfg.path, cfg.str = bytes, fpath, string(bytes)
+			cfg.typ = ff.TxtType(cfg.str) // "json", "toml", etc.
+			// fmt.Printf("config type: %s\n", cfg.typ)
 			break
 		}
 	}
@@ -149,9 +151,6 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 	}
 
 	lk.Log("prompts: %v", prompts)
-
-	// original config file type: "json", "toml", etc.
-	cfg.typ = ff.TxtType(cfg.str)
 
 	// check config value & type
 	// for k, v := range cfg.fm {

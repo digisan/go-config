@@ -1,0 +1,25 @@
+InFolder = "./data/"
+TrimColAfterSplit = true
+WalkSubFolders = true
+
+[Trim]
+Columns = ["School", "YrLevel", "Domain"]
+Enabled = true
+OutFolder = "./out_trim/"
+
+[Split]
+Enabled = true
+IgnoreFolder = "./ignore/"
+OutFolder = "./out_split/"
+Schema = ["School", "YrLevel", "Domain"]
+Split2 = false
+
+[[Merge]]
+Enabled = true
+MergedName = "GrammarAndPunctuation"
+Schema = ["GrammarAndPunctuation", "Grammar And Punctuation", "GRAMMARANDPUNCTUATION"]
+
+[[Merge]]
+Enabled = true
+MergedName = "Grammar"
+Schema = ["Grammar", "GRAMMAR"]
