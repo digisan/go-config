@@ -108,7 +108,7 @@ func Object(paths ...any) map[string]any {
 	return MapFlatToNested(mr, nil)
 }
 
-func Objects(paths ...any) []any {
+func Objects(paths ...any) []map[string]any {
 
 	field := path(paths...)
 
@@ -139,7 +139,7 @@ func Objects(paths ...any) []any {
 	}
 
 	// prepare return map array
-	rt := make([]any, N)
+	rt := make([]map[string]any, N)
 	for i := 0; i < N; i++ {
 		rt[i] = MapFlatToNested(fms[i], nil)
 	}
