@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	cfg "github.com/digisan/go-config"
 )
@@ -18,6 +19,7 @@ func main() {
 	fmt.Println("array:", cfg.ValArr[int8]("clients.data.1"))
 	fmt.Println("object:", cfg.ValObj("servers.alpha"))
 	fmt.Println("object:", cfg.ValObj("servers"))
+	fmt.Println("time:", cfg.Val[time.Time]("owner.dob"))
 
 	// fmt.Println("array", cfg.ValArr[any]("clients.data")) // error !!!
 

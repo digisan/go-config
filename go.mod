@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/digisan/fileflatter v0.0.3
-	github.com/digisan/go-generics v0.2.16
+	github.com/digisan/go-generics v0.2.17
 	github.com/digisan/gotk v0.2.10
 	github.com/digisan/logkit v0.1.4
 	github.com/tidwall/gjson v1.14.4
