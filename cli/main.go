@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	cfg "github.com/digisan/go-config"
 )
@@ -13,6 +12,8 @@ func main() {
 	cfg.Use("toml1")
 	cfg.Show()
 
+	fmt.Println("InFolder:", cfg.Path("InFolder"))
+	fmt.Println("Trim.OutFolder:", cfg.Path("Trim.OutFolder"))
 	fmt.Println("Split.Enabled:", cfg.Bool("Split.Enabled"))
 	fmt.Println("Split.Schema.0:", cfg.Str("Split.Schema.0"))
 	fmt.Println("Split.Schema:", cfg.Strs("Split.Schema"))
@@ -36,7 +37,7 @@ func main() {
 	fmt.Println("array:", cfg.ValArr[int8]("clients.data.1"))
 	fmt.Println("servers.alpha:", cfg.Object("servers", "alpha"))
 	fmt.Println("servers:", cfg.Object("servers"))
-	fmt.Println("time:", cfg.Val[time.Time]("owner.dob"))
+	fmt.Println("time:", cfg.DateTime("owner.dob"))
 
 	// // fmt.Println("array", cfg.ValArr[any]("clients.data")) // error@ [[], []] !!!
 

@@ -2,8 +2,10 @@ package goconfig
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	ff "github.com/digisan/fileflatter"
 	. "github.com/digisan/go-generics/v2"
@@ -158,14 +160,26 @@ func CntObjects(paths ...any) int {
 //////////////////////////////////////////////////////////
 
 var (
-	Bool   = Val[bool]
-	Bools  = ValArr[bool]
-	Str    = Val[string]
-	Strs   = ValArr[string]
-	Int    = Val[int]
-	Ints   = ValArr[int]
-	Uint   = Val[uint]
-	Uints  = ValArr[uint]
-	Float  = Val[float64]
-	Floats = ValArr[float64]
+	Bool     = Val[bool]
+	Bools    = ValArr[bool]
+	Str      = Val[string]
+	Strs     = ValArr[string]
+	Int      = Val[int]
+	Ints     = ValArr[int]
+	Uint     = Val[uint]
+	Uints    = ValArr[uint]
+	Float    = Val[float64]
+	Floats   = ValArr[float64]
+	DateTime = Val[time.Time]
+
+	// clean path
+	Path = func(paths ...any) string {
+		return filepath.Clean(Str(paths...))
+	}
+	// clean paths
+	Paths = func(paths ...any) []string {
+		return FilterMap(Strs(paths...), nil, func(i int, e string) string {
+			return filepath.Clean(e)
+		})
+	}
 )
