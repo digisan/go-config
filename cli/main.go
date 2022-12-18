@@ -24,6 +24,11 @@ func main() {
 	fmt.Println("Merge:", cfg.Objects("Merge"))
 	fmt.Println("Merge Count:", cfg.CntObjects("Merge"))
 
+	fmt.Println("Trim.OutFolder:", cfg.Path("Trim.OutFolder"))
+	fmt.Println("Trim.OutFolder:", cfg.PathAbs("Trim.OutFolder"))
+
+	return
+
 	fmt.Println("--------------------------------------------------------------------------")
 
 	cfg.Init("toml", true, "../data/config.toml")

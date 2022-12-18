@@ -182,4 +182,18 @@ var (
 			return filepath.Clean(e)
 		})
 	}
+	// absolute path
+	PathAbs = func(paths ...any) string {
+		p, err := filepath.Abs(Str(paths...))
+		lk.FailOnErr("%v", err)
+		return p
+	}
+	// absolute paths
+	PathsAbs = func(paths ...any) []string {
+		return FilterMap(Strs(paths...), nil, func(i int, e string) string {
+			p, err := filepath.Abs(Str(paths...))
+			lk.FailOnErr("%v", err)
+			return p
+		})
+	}
 )
