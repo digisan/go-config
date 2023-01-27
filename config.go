@@ -134,7 +134,7 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 	}
 
 	//
-	cfg.fm, err = ff.FlatContent(data)
+	cfg.fm, err = ff.FlatContent(data, false)
 	lk.FailOnErr("%v", err)
 
 	if !prompt {
@@ -220,7 +220,7 @@ input value for [%s]. if <ENTER>, default value applies
 			ori := string(data)
 
 			// original flat map, which has prompt fields
-			fmOri, err := ff.FlatContent(ori)
+			fmOri, err := ff.FlatContent(ori, false)
 			lk.FailOnErr("%v", err)
 
 			switch cfg.typ {
