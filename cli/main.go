@@ -27,8 +27,6 @@ func main() {
 	fmt.Println("Trim.OutFolder:", cfg.Path("Trim.OutFolder"))
 	fmt.Println("Trim.OutFolder:", cfg.PathAbs("Trim.OutFolder"))
 
-	return
-
 	fmt.Println("--------------------------------------------------------------------------")
 
 	cfg.Init("toml", true, "../data/config.toml")
