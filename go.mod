@@ -4,10 +4,10 @@ go 1.20
 
 require (
 	github.com/BurntSushi/toml v1.2.1
-	github.com/digisan/fileflatter v0.0.9
+	github.com/digisan/fileflatter v0.0.10
 	github.com/digisan/go-generics v0.3.2
-	github.com/digisan/gotk v0.3.1
-	github.com/digisan/logkit v0.2.1
+	github.com/digisan/gotk v0.3.2
+	github.com/digisan/logkit v0.2.2
 	github.com/tidwall/sjson v1.2.5
 )
 
