@@ -14,6 +14,7 @@ import (
 	"github.com/BurntSushi/toml"
 	ff "github.com/digisan/fileflatter"
 	. "github.com/digisan/go-generics/v2"
+	dt "github.com/digisan/gotk/data-type"
 	"github.com/digisan/gotk/strs"
 	lk "github.com/digisan/logkit"
 	"github.com/tidwall/sjson"
@@ -124,7 +125,7 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 	for _, fpath := range fPaths {
 		if bytes, err := os.ReadFile(fpath); err == nil {
 			data, cfg.path, cfg.str = bytes, fpath, string(bytes)
-			cfg.typ = ff.TxtType(cfg.str) // "json", "toml", etc.
+			cfg.typ = dt.TxtType(cfg.str) // "json", "toml", etc.
 			// fmt.Printf("config type: %s\n", cfg.typ)
 			break
 		}
