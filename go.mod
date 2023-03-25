@@ -4,15 +4,15 @@ go 1.20
 
 require (
 	github.com/BurntSushi/toml v1.2.1
-	github.com/digisan/fileflatter v0.0.11
+	github.com/digisan/fileflatter v0.0.12
 	github.com/digisan/go-generics v0.3.5
-	github.com/digisan/gotk v0.3.5
+	github.com/digisan/gotk v0.3.6
 	github.com/digisan/logkit v0.2.3
 	github.com/tidwall/sjson v1.2.5
 )
 
 require (
-	github.com/gookit/color v1.5.2 // indirect
+	github.com/gookit/color v1.5.3 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
