@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	cfg.Init("toml1", true, "../data/config1.toml")
+	cfg.Init("toml1", false, "../data/config1.toml")
 	cfg.Use("toml1")
 	cfg.Show()
 
@@ -29,7 +29,7 @@ func main() {
 
 	fmt.Println("--------------------------------------------------------------------------")
 
-	cfg.Init("toml", true, "../data/config.toml")
+	cfg.Init("toml", false, "../data/config.toml")
 	cfg.Use("toml")
 	cfg.Show()
 
@@ -46,7 +46,7 @@ func main() {
 
 	fmt.Println("--------------------------------------------------------------------------")
 
-	cfg.Init("json", true, "../data/config.json")
+	cfg.Init("json", false, "../data/config.json")
 	cfg.Use("json")
 	cfg.Show()
 
@@ -59,8 +59,12 @@ func main() {
 	fmt.Println("array (expert)", cfg.Objects("expert-array"))
 	fmt.Println("array count (simple)", cfg.CntValArr[int]("simple-array"))
 	fmt.Println("array", cfg.ValArr[string]("string-array"))
-	fmt.Print("Not Existing: ")
-	fmt.Println(cfg.Val[string]("Myname"))
+
+	if missing := "Myname"; cfg.HasVal(missing) {
+		fmt.Println(cfg.Val[string](missing))
+	} else {
+		fmt.Printf("Not Existing: %s\n", missing)
+	}
 
 	fmt.Println("--------------------------------------------------------------------------")
 }

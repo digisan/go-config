@@ -41,8 +41,8 @@ func Show() {
 	ff.PrintFlat(cfg.fm)
 }
 
-func path(paths ...any) string {
-	sp := FilterMap(paths, nil, func(i int, e any) string { return fmt.Sprint(e) })
+func path(pathSegs ...any) string {
+	sp := FilterMap(pathSegs, nil, func(i int, e any) string { return fmt.Sprint(e) })
 	return strings.Join(sp, ".")
 }
 
@@ -58,10 +58,16 @@ func startWithNum(path string) (int, string, bool) {
 	}
 }
 
-// for primitive value
-func Val[T any](paths ...any) T {
+func HasVal(pathSegs ...any) bool {
+	field := path(pathSegs...)
+	_, ok := cfg.fm[field]
+	return ok
+}
 
-	field := path(paths...)
+// for primitive value
+func Val[T any](pathSegs ...any) T {
+
+	field := path(pathSegs...)
 
 	valAny, ok := cfg.fm[field]
 	lk.FailP1OnErrWhen(!ok, "%v", fmt.Errorf("[%v] is NOT in file [%s]", field, cfg.path))
@@ -72,9 +78,9 @@ func Val[T any](paths ...any) T {
 }
 
 // for array value, array must be primitive array
-func ValArr[T any](paths ...any) []T {
+func ValArr[T any](pathSegs ...any) []T {
 
-	field := path(paths...)
+	field := path(pathSegs...)
 
 	ks, _ := MapToKVs(cfg.fm, nil, nil)
 	ks = FilterMap(strs.SortPaths(ks...),
@@ -91,9 +97,9 @@ func ValArr[T any](paths ...any) []T {
 }
 
 // for object value
-func Object(paths ...any) map[string]any {
+func Object(pathSegs ...any) map[string]any {
 
-	field := path(paths...)
+	field := path(pathSegs...)
 
 	ks, _ := MapToKVs(cfg.fm, nil, nil)
 	ks = FilterMap(strs.SortPaths(ks...),
@@ -110,9 +116,9 @@ func Object(paths ...any) map[string]any {
 	return MapFlatToNested(mr, nil)
 }
 
-func Objects(paths ...any) []map[string]any {
+func Objects(pathSegs ...any) []map[string]any {
 
-	field := path(paths...)
+	field := path(pathSegs...)
 
 	ks, _ := MapToKVs(cfg.fm, nil, nil)
 	ks = FilterMap(strs.SortPaths(ks...),
