@@ -12,9 +12,9 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	ff "github.com/digisan/fileflatter"
 	. "github.com/digisan/go-generics/v2"
 	dt "github.com/digisan/gotk/data-type"
+	"github.com/digisan/gotk/flatter"
 	"github.com/digisan/gotk/strs"
 	lk "github.com/digisan/logkit"
 	"github.com/tidwall/sjson"
@@ -135,7 +135,7 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 	}
 
 	//
-	cfg.fm, err = ff.FlatContent(data, false)
+	cfg.fm, err = flatter.FlatContent(data, false)
 	lk.FailOnErr("%v", err)
 
 	if !prompt {
@@ -221,7 +221,7 @@ input value for [%s]. if <ENTER>, default value applies
 			ori := string(data)
 
 			// original flat map, which has prompt fields
-			fmOri, err := ff.FlatContent(ori, false)
+			fmOri, err := flatter.FlatContent(ori, false)
 			lk.FailOnErr("%v", err)
 
 			switch cfg.typ {

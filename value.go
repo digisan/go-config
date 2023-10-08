@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	ff "github.com/digisan/fileflatter"
 	. "github.com/digisan/go-generics/v2"
+	"github.com/digisan/gotk/flatter"
 	"github.com/digisan/gotk/strs"
 	lk "github.com/digisan/logkit"
 )
@@ -38,7 +38,7 @@ func Use(id string) error {
 }
 
 func Show() {
-	ff.PrintFlat(cfg.fm)
+	flatter.PrintFlat(cfg.fm)
 }
 
 func path(pathSegs ...any) string {
