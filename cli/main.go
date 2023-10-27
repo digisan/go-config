@@ -8,9 +8,13 @@ import (
 
 func main() {
 
-	cfg.Init("toml1", false, "../data/config1.toml")
-	cfg.Use("toml1")
+	cfg.Init("config", false, "../data/config-1.json", "../data/config1.toml")
+	cfg.Use("config")
 	cfg.Show()
+	// fmt.Println(cfg.CurrentCfgFile())
+	// fmt.Println(cfg.CurrentCfgType())
+	// fmt.Println(cfg.CurrentCfgContent())
+	// return
 
 	fmt.Println("InFolder:", cfg.Path("InFolder"))
 	fmt.Println("Trim.OutFolder:", cfg.Path("Trim.OutFolder"))

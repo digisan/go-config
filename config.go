@@ -122,9 +122,9 @@ func Init(id string, prompt bool, fPaths ...string) (err error) {
 		data []byte
 	)
 
-	for _, fpath := range fPaths {
-		if bytes, err := os.ReadFile(fpath); err == nil {
-			data, cfg.path, cfg.str = bytes, fpath, string(bytes)
+	for _, fPath := range fPaths {
+		if bytes, err := os.ReadFile(fPath); err == nil {
+			data, cfg.path, cfg.str = bytes, fPath, string(bytes)
 			cfg.typ = dt.DataType(cfg.str) // "json", "toml", etc.
 			// fmt.Printf("config type: %s\n", cfg.typ)
 			break

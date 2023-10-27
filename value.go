@@ -41,6 +41,18 @@ func Show() {
 	flatter.PrintFlat(cfg.fm)
 }
 
+func CurrentCfgFile() string {
+	return cfg.path
+}
+
+func CurrentCfgContent() string {
+	return cfg.str
+}
+
+func CurrentCfgType() string {
+	return cfg.typ
+}
+
 func path(pathSegs ...any) string {
 	sp := FilterMap(pathSegs, nil, func(i int, e any) string { return fmt.Sprint(e) })
 	return strings.Join(sp, ".")
