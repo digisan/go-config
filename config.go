@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	. "github.com/digisan/go-generics/v2"
+	. "github.com/digisan/go-generics"
 	dt "github.com/digisan/gotk/data-type"
 	"github.com/digisan/gotk/flatter"
 	"github.com/digisan/gotk/strs"
