@@ -4,9 +4,9 @@ go 1.22.1
 
 require (
 	github.com/BurntSushi/toml v1.3.2
-	github.com/digisan/go-generics v0.5.1
-	github.com/digisan/gotk v0.5.1
-	github.com/digisan/logkit v0.3.3
+	github.com/digisan/go-generics v0.5.2
+	github.com/digisan/gotk v0.5.2
+	github.com/digisan/logkit v0.3.4
 	github.com/tidwall/sjson v1.2.5
 )
 
