@@ -216,37 +216,8 @@ input value for [%s]. if <ENTER>, default value applies
 
 	if fm, ok := confirm(filepath.Base(cfg.path), cfg.typ, cfg.fm, final); ok {
 		if inputJudge("Overwrite Original File? (format & order may change & comments will disappear!)") {
-
-			// fetch original file content
-			ori := string(data)
-
-			// original flat map, which has prompt fields
-			fmOri, err := flatter.FlatContent(ori, false)
-			lk.FailOnErr("%v", err)
-
-			switch cfg.typ {
-
-			case "json":
-				// modify original
-				for k, v := range fm {
-					ori, err = sjson.Set(ori, k, v)
-					lk.FailOnErr("%v", err)
-				}
-				lk.FailOnErr("%v", os.WriteFile(cfg.path, []byte(ori), os.ModePerm))
-
-			case "toml":
-				// modify original
-				for k, v := range fm {
-					fmOri[k] = v
-				}
-
-				// "github.com/BurntSushi/toml"
-				buf := new(bytes.Buffer)
-				lk.FailOnErr("%v", toml.NewEncoder(buf).Encode(MapFlatToNested(fmOri, nil)))
-				lk.FailOnErr("%v", os.WriteFile(cfg.path, buf.Bytes(), os.ModePerm))
-
-			default:
-				panic("TODO: add more type to confirm preview")
+			if err = writeCfg(data, fm); err != nil {
+				return err
 			}
 		}
 		cfg.fm = fm
@@ -254,4 +225,42 @@ input value for [%s]. if <ENTER>, default value applies
 	}
 	fmt.Println("INPUT AGAIN PLEASE:")
 	goto RE_INPUT_ALL
+}
+
+func writeCfg(dataOri []byte, fm map[string]any) error {
+
+	// fetch original file content
+	ori := string(dataOri)
+
+	// original flat map, which has prompt fields
+	fmOri, err := flatter.FlatContent(ori, false)
+	if err != nil {
+		return err
+	}
+
+	switch cfg.typ {
+
+	case "json":
+		// modify original
+		for k, v := range fm {
+			ori, err = sjson.Set(ori, k, v)
+			lk.FailOnErr("%v", err)
+		}
+		lk.FailOnErr("%v", os.WriteFile(cfg.path, []byte(ori), os.ModePerm))
+
+	case "toml":
+		// modify original
+		for k, v := range fm {
+			fmOri[k] = v
+		}
+
+		// "github.com/BurntSushi/toml"
+		buf := new(bytes.Buffer)
+		lk.FailOnErr("%v", toml.NewEncoder(buf).Encode(MapFlatToNested(fmOri, nil)))
+		lk.FailOnErr("%v", os.WriteFile(cfg.path, buf.Bytes(), os.ModePerm))
+
+	default:
+		return fmt.Errorf("TODO: add more type into writeCfg")
+	}
+	return nil
 }

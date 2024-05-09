@@ -2,6 +2,7 @@ package goconfig
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -173,6 +174,19 @@ func CntValArr[T any](paths ...any) int {
 
 func CntObjects(paths ...any) int {
 	return len(Objects(paths...))
+}
+
+func SetCurrentCfgVal(v any, pathSegs ...any) error {
+	if cfg == nil || cfg.fm == nil || len(cfg.path) == 0 {
+		return fmt.Errorf("cfg is not initialized correctly")
+	}
+	field := path(pathSegs...)
+	cfg.fm[field] = v
+	data, err := os.ReadFile(cfg.path)
+	if err != nil {
+		return err
+	}
+	return writeCfg(data, cfg.fm)
 }
 
 //////////////////////////////////////////////////////////

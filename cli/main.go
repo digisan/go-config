@@ -11,6 +11,9 @@ func main() {
 	cfg.Init("config", false, "../data/config-1.json", "../data/config1.toml")
 	cfg.Use("config")
 	cfg.Show()
+
+	cfg.SetCurrentCfgVal("test1", "Trim", "NewAdded")
+
 	// fmt.Println(cfg.CurrentCfgFile())
 	// fmt.Println(cfg.CurrentCfgType())
 	// fmt.Println(cfg.CurrentCfgContent())
