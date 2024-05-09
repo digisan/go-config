@@ -43,7 +43,7 @@ func inputJudge(prompt string) bool {
 	input := ""
 	_, err := fmt.Scanf("%s", &input)
 	switch {
-	case err == nil && strs.IsIn(true, true, input, "YES", "Y", "OK", "TRUE"):
+	case err == nil && strs.In(true, true, input, "YES", "Y", "OK", "TRUE"):
 		return true
 	case err != nil && err.Error() == "unexpected newline" && len(input) == 0:
 		return false
